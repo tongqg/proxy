@@ -21,7 +21,7 @@ class EchoHandler(BaseHTTPRequestHandler):
 		shutil.copyfileobj(f,self.wfile)
 
 def run():
-    port = 8000
+    port = 8080
     print('starting server, port', port)
 
     # Server settings
