@@ -1,34 +1,31 @@
 #!/usr/bin/env python
 # author tongqg
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import shutil, io
+import aiohttp
+import asyncio
+import async_timeout
+from aiohttp import web
 
-class EchoHandler(BaseHTTPRequestHandler):
-	def do_GET(self):
-		self.outputtxt("hello world")
+async def fetch(session, url):
+    async with async_timeout.timeout(10):
+        async with session.get(url) as response:
+            return await response.text()
 
-	def outputtxt(self, content):
-		enc = "UTF-8"
-		content = content.encode(enc)          
-		f = io.BytesIO()
-		f.write(content)
-		f.seek(0)  
-		self.send_response(200)  
-		self.send_header("Content-type", "text/html; charset=%s" % enc)  
-		self.send_header("Content-Length", str(len(content)))  
-		self.end_headers()  
-		shutil.copyfileobj(f,self.wfile)
+async def main():
+    async with aiohttp.ClientSession() as session:
+        html = await fetch(session, 'http://python.org')
+        print(html)
 
-def run():
-    port = 8080
-    print('starting server, port', port)
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(main())
 
-    # Server settings
-    server_address = ('', port)
-    httpd = HTTPServer(server_address, EchoHandler)
-    print('running server...')
-    httpd.serve_forever()
+async def handle(request):
+    name = request.match_info.get('name', "Anonymous")
+    text = "Hello, " + name
+    return web.Response(text=text)
 
-if __name__ == '__main__':
-    run()
+app = web.Application()
+app.router.add_get('/', handle)
+app.router.add_get('/{name}', handle)
+
+web.run_app(app)
