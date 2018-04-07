@@ -11,17 +11,19 @@ async def fetch(session, url):
         async with session.get(url) as response:
             return await response.text()
 
-async def main():
+async def get():
     async with aiohttp.ClientSession() as session:
         html = await fetch(session, 'http://python.org')
-        print(html)
+        return html
 
 # loop = asyncio.get_event_loop()
 # loop.run_until_complete(main())
 
 async def handle(request):
-    name = request.match_info.get('name', "Anonymous")
-    text = "Hello, " + name
+    # name = request.match_info.get('name', "Anonymous")
+    # text = "Hello, " + name
+    # return web.Response(text=text)
+    text = await get()
     return web.Response(text=text)
 
 app = web.Application()
