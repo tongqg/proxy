@@ -26,6 +26,7 @@ async def handle(request):
     text = await get()
     return web.Response(text=text)
 
+
 app = web.Application()
 app.router.add_get('/', handle)
 app.router.add_get('/{name}', handle)
